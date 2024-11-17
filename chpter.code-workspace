@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "name": "base",
+      "path": "."
+    },
+    {
+      "name": "proto",
+      "path": "./proto"
+    },
+    {
+      "name": "user",
+      "path": "./services/user"
+    },
+    {
+      "name": "order",
+      "path": "./services/order"
+    },
+    {
+      "name": "e2e",
+      "path": "./e2e"
+    }
+  ],
+  "settings": {
+    "protoc": {
+      "options": ["--proto_path=${workspaceRoot}/proto"]
+    }
+  }
+}

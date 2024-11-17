@@ -1,0 +1,103 @@
+services:
+  chpter_order_db:
+    container_name: chpter_uorder_db
+    image: mariadb:11.3.2
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized",
+        ]
+      timeout: 30s
+    environment:
+      - "MARIADB_USER=chpter_user"
+      - "MARIADB_PASSWORD=siro"
+      - "MARIADB_DATABASE=orders"
+      - "MARIADB_ROOT_PASSWORD=siroro"
+    volumes:
+      - order_data_volume:/var/lib/mysql
+    networks:
+      - chpter
+
+  chpter_user_db:
+    container_name: chpter_user_db
+    image: mariadb:11.3.2
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized",
+        ]
+      timeout: 30s
+    environment:
+      - "MARIADB_USER=chpter_user"
+      - "MARIADB_PASSWORD=siro"
+      - "MARIADB_DATABASE=users"
+      - "MARIADB_ROOT_PASSWORD=siroro"
+    volumes:
+      - user_data_volume:/var/lib/mysql
+    networks:
+      - chpter
+
+  user:
+    container_name: user
+    build:
+      context: .
+      dockerfile: ./services/user/Dockerfile
+      args:
+        - RELEASE_MODE=dev
+    ports:
+      - "5002:443"
+    depends_on:
+      - chpter_user_db
+    networks:
+      - chpter
+    environment:
+      - "DATABASE_URL=chpter_user:siro@tcp(chpter_user_db:3306)/users?charset=utf8mb4&parseTime=True&loc=Local"
+      - PORT=443
+      - HOST=0.0.0.0
+    volumes:
+      - ./services/user:/app
+    restart: unless-stopped
+
+  order:
+    container_name: order
+    build:
+      context: .
+      dockerfile: ./services/order/Dockerfile
+      args:
+        - RELEASE_MODE=dev
+    ports:
+      - "5001:443"
+    depends_on:
+      - chpter_order_db
+    networks:
+      - chpter
+    environment:
+      - "DATABASE_URL=chpter_user:siro@tcp(chpter_order_db:3306)/orders?charset=utf8mb4&parseTime=True&loc=Local"
+      - PORT=443
+      - HOST=0.0.0.0
+      - "USER_SERVICE_URL=user:443"
+    volumes:
+      - ./services/order:/app
+    restart: unless-stopped
+
+volumes:
+  user_data_volume:
+    driver: local
+  order_data_volume:
+    driver: local
+
+networks:
+  chpter:
+    name: "chpter"

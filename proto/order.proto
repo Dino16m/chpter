@@ -1,0 +1,47 @@
+syntax = "proto3";
+package rpc;
+
+import "google/protobuf/timestamp.proto";
+import "user.proto";
+
+option go_package = "common/rpc";
+
+
+
+message Decimal {
+    string value = 1;
+}
+
+message NewLineItemMessage {
+    int64 ProductId = 1;
+    int64 Quantity = 2;
+    Decimal UnitPrice = 3;
+}
+
+message LineItemMessage {
+    int64 ProductId = 1;
+    int64 Quantity = 2;
+    Decimal UnitPrice = 3;
+    Decimal Price = 4;
+}
+
+message NewOrderMessage {
+    int64 CustomerId = 1;
+    repeated NewLineItemMessage Items = 2;
+}
+
+
+message OrderMessage {
+    int64 CustomerId = 1;
+    repeated LineItemMessage Items = 2;
+    google.protobuf.Timestamp CreatedAt = 3;
+    UserMessage Customer = 4;
+    Decimal Total = 5;
+    int64 Id = 6;
+}
+
+
+service OrderRPCService {
+    rpc CreateOrder(NewOrderMessage) returns (OrderMessage);
+    rpc GetOrder(IdMessage) returns (OrderMessage);
+}

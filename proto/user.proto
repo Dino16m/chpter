@@ -1,0 +1,29 @@
+syntax = "proto3";
+package rpc;
+
+option go_package = "common/rpc";
+
+import "google/protobuf/timestamp.proto";
+
+message UserMessage {
+    int64 Id = 1;
+    string FirstName = 2;
+    string LastName = 3;
+    string Email = 4;
+    google.protobuf.Timestamp CreatedAt = 5;
+}
+
+message NewUserMessage {
+    string FirstName = 1;
+    string LastName = 2;
+    string Email = 3;
+}
+
+message IdMessage {
+    int64 Id = 1;
+}
+
+service UserRPCService {
+    rpc CreateUser(NewUserMessage) returns (UserMessage);
+    rpc GetUser(IdMessage) returns (UserMessage);
+}

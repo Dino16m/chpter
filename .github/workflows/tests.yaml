@@ -1,0 +1,30 @@
+name: "Test"
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: "Checkout repository"
+
+      - uses: actions/setup-go@v5
+        name: "Setup golang"
+        with:
+          go-version: "1.23.3"
+
+      - name: "Run user unit tests"
+        run: make user_test
+
+      - name: "Run order unit tests"
+        run: make order_test
+
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker/docker-compose.yml"
+
+      - name: "Run e2e tests"
+        run: make e2e_test
