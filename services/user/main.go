@@ -35,18 +35,29 @@ func getConfig() Config {
 }
 
 func initDB(databaseURL string) *gorm.DB {
-	db, err := gorm.Open(mysql.Open(databaseURL))
-	if err != nil {
-		panic("Failed to open database")
+	const MAX_TRIES = 5
+	sleepDuration := time.Second * 5
+	var err error
+	for i := 0; i < MAX_TRIES; i++ {
+		db, err := gorm.Open(mysql.Open(databaseURL))
+
+		if err != nil {
+			time.Sleep(sleepDuration * time.Duration(i))
+			continue
+		}
+		sqlDB, err := db.DB()
+		if err != nil {
+			time.Sleep(sleepDuration * time.Duration(i))
+			continue
+		}
+		sqlDB.SetMaxOpenConns(100)
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetConnMaxLifetime(time.Second)
+		return db
 	}
-	sqlDB, err := db.DB()
-	if err != nil {
-		panic(err)
-	}
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetConnMaxLifetime(time.Second)
-	return db
+
+	panic(err)
+
 }
 
 func runServer(grpcServer *grpc.Server, host string, port uint) error {

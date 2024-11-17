@@ -79,7 +79,7 @@ func fromOrderMessage(message *rpc.NewOrderMessage) models.Order {
 }
 
 func (s OrderRPCService) CreateOrder(ctx context.Context, in *rpc.NewOrderMessage) (*rpc.OrderMessage, error) {
-	order, err := s.createOrderSync(ctx, in)
+	order, err := s.createOrderAsync(ctx, in)
 
 	if err != nil && status.Code(err) == codes.Unknown {
 		return order, apperrs.NewServerError("An error occured while creating a new order", err)

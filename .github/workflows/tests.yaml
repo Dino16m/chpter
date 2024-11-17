@@ -5,11 +5,14 @@ on:
       - main
 
 jobs:
-  unit-tests:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         name: "Checkout repository"
+
+      - name: "Start Docker containers"
+        run: RELEASE_MODE=prod docker compose up -d
 
       - uses: actions/setup-go@v5
         name: "Setup golang"
@@ -21,10 +24,6 @@ jobs:
 
       - name: "Run order unit tests"
         run: make order_test
-
-      - uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          compose-file: "./docker/docker-compose.yml"
 
       - name: "Run e2e tests"
         run: make e2e_test

@@ -55,7 +55,7 @@ services:
       context: .
       dockerfile: ./services/user/Dockerfile
       args:
-        - RELEASE_MODE=dev
+        - RELEASE_MODE=${RELEASE_MODE:-dev}
     ports:
       - "5002:443"
     depends_on:
@@ -76,7 +76,7 @@ services:
       context: .
       dockerfile: ./services/order/Dockerfile
       args:
-        - RELEASE_MODE=dev
+        - RELEASE_MODE=${RELEASE_MODE:-dev}
     ports:
       - "5001:443"
     depends_on:
